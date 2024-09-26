@@ -6,40 +6,47 @@ const urlPlanets = 'http://localhost:9009/api/planets'
 const urlPeople = 'http://localhost:9009/api/people'
 
 function App() {
-  const [characters, setCharacters] = useState([])
-  const [planets, setPlanets] = useState([])
+  const [people, setPeople] = useState([]);
+  const [planets, setPlanets] = useState([]);
+  // ❗ Create state to hold the data from the API
+  // ❗ Create effects to fetch the data and put it in state
 
-  useEffect(() => {
-    const fetchCharacters = async () => {
-      try {
-        const response = await axios.get(urlPeople)
-        setCharacters(response.data)
-      } catch (error) {
-        console.error('Error fetching characters:', error)
-      }
-    }
+useEffect(() => {
+  axios.get(urlPeople)
+  .then(response => {
+    setPeople(response.data);
+  })
+  .catch(error => {
+    console.error('Error fetching people:', error)
+  });
 
-    const fetchPlanets = async () => {
-      try {
-        const response = await axios.get(urlPlanets)
-        setPlanets(response.data)
-      } catch (error) {
-        console.error('Error fetching planets:', error)
-      }
-    }
+  axios.get(urlPlanets)
+  .then(response => {
+    setPlanets(response.data);
+  })
+  .catch(error => {
+    console.error('Error fetching planets:', error)
+  });
+}, []);
 
-    fetchCharacters()
-    fetchPlanets()
-  }, [])
+const peopleWithPlanets = people.map(character => {
+  const homeworld = planets.find(planet => planet.id === character.homeworld)
+return { ...character, homeworld }
+})
 
   return (
     <div>
       <h2>Star Wars Characters</h2>
       <p>See the README of the project for instructions on completing this challenge</p>
-      {characters.map(character => {
-        const planet = planets.find(planet => planet.id === character.homeworld)
-        return <Character key={character.name} character={character} planet={planet} />
-      })}
+      <div>
+      {peopleWithPlanets.length > 0 ? (
+        peopleWithPlanets.map(character => (
+          <Character key={character.id} character={character} />
+        ))
+      ) : (
+        <p>Loading characters...</p>
+      )}
+    </div>
     </div>
   )
 }
